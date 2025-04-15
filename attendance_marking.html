@@ -1,0 +1,82 @@
+<!-- File: attendance_marking.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mark Attendance</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+  <h2 class="text-center">Mark Student Attendance</h2>
+
+  <div class="alert alert-warning">
+    🔒 <strong>Note:</strong> Only <u>authorized teachers</u> can mark attendance.<br>
+    ✅ Use this address for now: <code>0xTeacher1</code>
+  </div>
+
+  <form id="attendanceForm" class="mt-4">
+    <div class="mb-3">
+      <label class="form-label">Teacher Address</label>
+      <input type="text" id="teacher_address" class="form-control" placeholder="e.g. 0xTeacher1" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Student ID</label>
+      <input type="text" id="student_id" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Course ID</label>
+      <input type="text" id="course_id" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Attendance Status</label>
+      <select id="attendance_status" class="form-control" required>
+        <option value="Present">Present</option>
+        <option value="Late">Late</option>
+        <option value="Absent">Absent</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary w-100">Submit Attendance</button>
+  </form>
+
+  <div id="responseMessage" class="alert mt-3" style="display:none;"></div>
+</div>
+
+<script>
+document.getElementById("attendanceForm").addEventListener("submit", function(event) {
+  event.preventDefault();
+
+  const data = {
+    student_id: document.getElementById("student_id").value,
+    student_name: "",
+    project_name: "",
+    supervisor_name: document.getElementById("teacher_address").value,
+    department: "",
+    completion_status: document.getElementById("attendance_status").value,
+    remarks: document.getElementById("course_id").value,
+    signature: "signed-by-teacher",
+    record_type: "Attendance"
+  };
+
+  fetch("http://127.0.0.1:5000/add_transaction", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
+  .then(response => response.json())
+  .then(result => {
+    const msgDiv = document.getElementById("responseMessage");
+    msgDiv.style.display = "block";
+    msgDiv.className = result.message ? "alert alert-success" : "alert alert-danger";
+    msgDiv.innerText = result.message || result.error || "Unknown error occurred";
+  })
+  .catch(() => {
+    const msgDiv = document.getElementById("responseMessage");
+    msgDiv.style.display = "block";
+    msgDiv.className = "alert alert-danger";
+    msgDiv.innerText = "❌ Network error while submitting attendance.";
+  });
+});
+</script>
+</body>
+</html>
